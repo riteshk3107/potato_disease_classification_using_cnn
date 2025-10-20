@@ -1,0 +1,243 @@
+<html>
+<head>
+<title>trainning.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #cf8e6d;}
+.s2 { color: #bcbec4;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.s5 { color: #7a7e85;}
+.ls0 { height: 1px; border-width: 0; color: #43454a; background-color:#43454a}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+trainning.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+**Import libraries** <hr class="ls0">#%% 
+</span><span class="s1">import </span><span class="s0">tensorflow </span><span class="s1">as </span><span class="s0">tf</span>
+<span class="s1">from </span><span class="s0">tensorflow</span><span class="s2">.</span><span class="s0">keras </span><span class="s1">import </span><span class="s0">models</span><span class="s2">, </span><span class="s0">layers</span>
+<span class="s1">from </span><span class="s0">tensorflow</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">preprocessing </span><span class="s1">import </span><span class="s0">image</span>
+<span class="s1">import </span><span class="s0">numpy </span><span class="s1">as </span><span class="s0">np</span>
+<span class="s1">from </span><span class="s0">sklearn</span><span class="s2">.</span><span class="s0">metrics </span><span class="s1">import </span><span class="s0">classification_report</span><span class="s2">,</span><span class="s0">confusion_matrix</span>
+<span class="s1">import </span><span class="s0">seaborn </span><span class="s1">as </span><span class="s0">sns</span>
+<span class="s1">import </span><span class="s0">matplotlib</span><span class="s2">.</span><span class="s0">pyplot </span><span class="s1">as </span><span class="s0">plt</span>
+<span class="s1">from </span><span class="s0">PIL </span><span class="s1">import </span><span class="s0">Image</span>
+<hr class="ls0"><span class="s0">#%% 
+BATCH_SIZE </span><span class="s2">= </span><span class="s3">32</span>
+<span class="s0">IMAGE_SIZE </span><span class="s2">= </span><span class="s3">256</span>
+<span class="s0">EPOCHS </span><span class="s2">= </span><span class="s3">50</span>
+<span class="s0">CHANNELS </span><span class="s2">= </span><span class="s3">3</span>
+<span class="s0">n_classes </span><span class="s2">= </span><span class="s3">3</span>
+<hr class="ls0"><span class="s0">#%% 
+dataset </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">preprocessing</span><span class="s2">.</span><span class="s0">image_dataset_from_directory</span><span class="s2">(</span>
+    <span class="s4">&quot;PlantVillage&quot;</span><span class="s2">,</span>
+    <span class="s0">seed</span><span class="s2">=</span><span class="s3">123</span><span class="s2">,</span>
+    <span class="s0">shuffle</span><span class="s2">=</span><span class="s1">True</span><span class="s2">,</span>
+    <span class="s0">image_size </span><span class="s2">= (</span><span class="s0">IMAGE_SIZE</span><span class="s2">, </span><span class="s0">IMAGE_SIZE</span><span class="s2">),</span>
+    <span class="s0">batch_size </span><span class="s2">= </span><span class="s0">BATCH_SIZE</span>
+<span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+class_names </span><span class="s2">= </span><span class="s0">dataset</span><span class="s2">.</span><span class="s0">class_names</span>
+<span class="s0">class_names</span><hr class="ls0"><span class="s0">#%% 
+len</span><span class="s2">(</span><span class="s0">dataset</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">for </span><span class="s0">image_batch</span><span class="s2">, </span><span class="s0">label_batch </span><span class="s1">in </span><span class="s0">dataset</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+    <span class="s0">print</span><span class="s2">(</span><span class="s0">image_batch</span><span class="s2">[</span><span class="s3">0</span><span class="s2">].</span><span class="s0">shape</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% md 
+**Visualize the dataset** <hr class="ls0">#%% 
+plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s3">10</span><span class="s2">,</span><span class="s3">10</span><span class="s2">))</span>
+<span class="s1">for </span><span class="s0">image_batch</span><span class="s2">, </span><span class="s0">label_batch </span><span class="s1">in </span><span class="s0">dataset</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+    <span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range</span><span class="s2">(</span><span class="s3">12</span><span class="s2">):</span>
+        <span class="s0">ax </span><span class="s2">= </span><span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s3">3</span><span class="s2">,</span><span class="s3">4</span><span class="s2">,</span><span class="s0">i</span><span class="s2">+</span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">image_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">().</span><span class="s0">astype</span><span class="s2">(</span><span class="s4">&quot;uint8&quot;</span><span class="s2">))</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">label_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">]])</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">axis</span><span class="s2">(</span><span class="s4">&quot;off&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% md 
+80% ==&gt; training 
+20% ==&gt; 10%validation, 10%  <hr class="ls0">#%% 
+len</span><span class="s2">(</span><span class="s0">dataset</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">def </span><span class="s0">get_dataset_partitions_tf</span><span class="s2">(</span><span class="s0">ds</span><span class="s2">, </span><span class="s0">train_split </span><span class="s2">= </span><span class="s3">0.8</span><span class="s2">, </span><span class="s0">validation_split </span><span class="s2">= </span><span class="s3">0.1</span><span class="s2">):</span>
+
+    <span class="s0">ds_size </span><span class="s2">= </span><span class="s0">len</span><span class="s2">(</span><span class="s0">ds</span><span class="s2">)</span>
+
+    <span class="s0">train_size </span><span class="s2">= </span><span class="s0">int</span><span class="s2">(</span><span class="s0">train_split </span><span class="s2">* </span><span class="s0">ds_size</span><span class="s2">)</span>
+    <span class="s0">validation_size </span><span class="s2">= </span><span class="s0">int</span><span class="s2">(</span><span class="s0">validation_split </span><span class="s2">* </span><span class="s0">ds_size</span><span class="s2">)</span>
+
+    <span class="s0">train_dataset </span><span class="s2">= </span><span class="s0">ds</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s0">train_size</span><span class="s2">)</span>
+    <span class="s0">validation_dataset </span><span class="s2">= </span><span class="s0">ds</span><span class="s2">.</span><span class="s0">skip</span><span class="s2">(</span><span class="s0">train_size</span><span class="s2">).</span><span class="s0">take</span><span class="s2">(</span><span class="s0">validation_size</span><span class="s2">)</span>
+    <span class="s0">test_dataset </span><span class="s2">= </span><span class="s0">ds</span><span class="s2">.</span><span class="s0">skip</span><span class="s2">(</span><span class="s0">train_size</span><span class="s2">).</span><span class="s0">skip</span><span class="s2">(</span><span class="s0">validation_size</span><span class="s2">)</span>
+
+    <span class="s1">return </span><span class="s0">train_dataset</span><span class="s2">, </span><span class="s0">validation_dataset</span><span class="s2">, </span><span class="s0">test_dataset</span><hr class="ls0"><span class="s0">#%% 
+train_ds</span><span class="s2">, </span><span class="s0">validation_ds</span><span class="s2">, </span><span class="s0">test_ds </span><span class="s2">= </span><span class="s0">get_dataset_partitions_tf</span><span class="s2">(</span><span class="s0">dataset</span><span class="s2">)</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">len</span><span class="s2">(</span><span class="s0">train_ds</span><span class="s2">))</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">len</span><span class="s2">(</span><span class="s0">validation_ds</span><span class="s2">))</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">len</span><span class="s2">(</span><span class="s0">test_ds</span><span class="s2">))</span><hr class="ls0"><span class="s0">#%% md 
+Cache, Shuffle, and Prefetch the Dataset 
+ <hr class="ls0">#%% 
+train_ds </span><span class="s2">= </span><span class="s0">train_ds</span><span class="s2">.</span><span class="s0">cache</span><span class="s2">().</span><span class="s0">shuffle</span><span class="s2">(</span><span class="s3">10</span><span class="s2">).</span><span class="s0">prefetch</span><span class="s2">(</span><span class="s0">buffer_size</span><span class="s2">=</span><span class="s0">tf</span><span class="s2">.</span><span class="s0">data</span><span class="s2">.</span><span class="s0">AUTOTUNE</span><span class="s2">)</span>
+<span class="s0">val_ds </span><span class="s2">= </span><span class="s0">validation_ds</span><span class="s2">.</span><span class="s0">cache</span><span class="s2">().</span><span class="s0">shuffle</span><span class="s2">(</span><span class="s3">10</span><span class="s2">).</span><span class="s0">prefetch</span><span class="s2">(</span><span class="s0">buffer_size</span><span class="s2">=</span><span class="s0">tf</span><span class="s2">.</span><span class="s0">data</span><span class="s2">.</span><span class="s0">AUTOTUNE</span><span class="s2">)</span>
+<span class="s0">test_ds </span><span class="s2">= </span><span class="s0">test_ds</span><span class="s2">.</span><span class="s0">cache</span><span class="s2">().</span><span class="s0">shuffle</span><span class="s2">(</span><span class="s3">10</span><span class="s2">).</span><span class="s0">prefetch</span><span class="s2">(</span><span class="s0">buffer_size</span><span class="s2">=</span><span class="s0">tf</span><span class="s2">.</span><span class="s0">data</span><span class="s2">.</span><span class="s0">AUTOTUNE</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% md 
+**Building the Model** 
+ <hr class="ls0">#%% 
+resize_and_rescale </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">Sequential</span><span class="s2">([</span>
+  <span class="s0">layers</span><span class="s2">.</span><span class="s0">Resizing</span><span class="s2">(</span><span class="s0">IMAGE_SIZE</span><span class="s2">, </span><span class="s0">IMAGE_SIZE</span><span class="s2">),</span>
+  <span class="s0">layers</span><span class="s2">.</span><span class="s0">Rescaling</span><span class="s2">(</span><span class="s3">1.</span><span class="s2">/</span><span class="s3">255</span><span class="s2">),</span>
+<span class="s2">])</span><hr class="ls0"><span class="s0">#%% md 
+Data Augmentation (Flipping, Rotation, Zoom) <hr class="ls0">#%% 
+data_augmentation </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">Sequential</span><span class="s2">([</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">RandomFlip</span><span class="s2">(</span><span class="s4">&quot;horizontal_and_vertical&quot;</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">RandomRotation</span><span class="s2">(</span><span class="s3">30</span><span class="s2">/</span><span class="s3">360</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">RandomZoom</span><span class="s2">(</span><span class="s3">0.1</span><span class="s2">)</span>
+<span class="s2">])</span>
+
+<span class="s0">augmented_ds </span><span class="s2">= </span><span class="s0">train_ds</span><span class="s2">.</span><span class="s0">map</span><span class="s2">(</span><span class="s1">lambda </span><span class="s0">x</span><span class="s2">, </span><span class="s0">y</span><span class="s2">: (</span><span class="s0">data_augmentation</span><span class="s2">(</span><span class="s0">x</span><span class="s2">), </span><span class="s0">y</span><span class="s2">))</span>
+<span class="s0">print</span><span class="s2">(</span><span class="s0">augmented_ds</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s3">10</span><span class="s2">,</span><span class="s3">10</span><span class="s2">))</span>
+<span class="s1">for </span><span class="s0">image_batch</span><span class="s2">, </span><span class="s0">label_batch </span><span class="s1">in </span><span class="s0">augmented_ds</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+    <span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range</span><span class="s2">(</span><span class="s3">12</span><span class="s2">):</span>
+        <span class="s0">ax </span><span class="s2">= </span><span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s3">3</span><span class="s2">,</span><span class="s3">4</span><span class="s2">,</span><span class="s0">i</span><span class="s2">+</span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">image_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">().</span><span class="s0">astype</span><span class="s2">(</span><span class="s4">&quot;uint8&quot;</span><span class="s2">))</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">label_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">]])</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">axis</span><span class="s2">(</span><span class="s4">&quot;off&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% md 
+Applying Data Augmentation to Train Dataset 
+ <hr class="ls0">#%% 
+train_ds </span><span class="s2">= </span><span class="s0">train_ds</span><span class="s2">.</span><span class="s0">map</span><span class="s2">(</span>
+    <span class="s1">lambda </span><span class="s0">x</span><span class="s2">, </span><span class="s0">y</span><span class="s2">: (</span><span class="s0">data_augmentation</span><span class="s2">(</span><span class="s0">x</span><span class="s2">, </span><span class="s0">training</span><span class="s2">=</span><span class="s1">True</span><span class="s2">), </span><span class="s0">y</span><span class="s2">)</span>
+<span class="s2">).</span><span class="s0">prefetch</span><span class="s2">(</span><span class="s0">buffer_size</span><span class="s2">=</span><span class="s0">tf</span><span class="s2">.</span><span class="s0">data</span><span class="s2">.</span><span class="s0">AUTOTUNE</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s3">10</span><span class="s2">,</span><span class="s3">10</span><span class="s2">))</span>
+<span class="s1">for </span><span class="s0">image_batch</span><span class="s2">, </span><span class="s0">label_batch </span><span class="s1">in </span><span class="s0">train_ds</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+    <span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range</span><span class="s2">(</span><span class="s3">12</span><span class="s2">):</span>
+        <span class="s0">ax </span><span class="s2">= </span><span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s3">3</span><span class="s2">,</span><span class="s3">4</span><span class="s2">,</span><span class="s0">i</span><span class="s2">+</span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">image_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">().</span><span class="s0">astype</span><span class="s2">(</span><span class="s4">&quot;uint8&quot;</span><span class="s2">))</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">label_batch</span><span class="s2">[</span><span class="s0">i</span><span class="s2">]])</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">axis</span><span class="s2">(</span><span class="s4">&quot;off&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% md 
+Model Architecture <hr class="ls0">#%% 
+model </span><span class="s2">= </span><span class="s0">models</span><span class="s2">.</span><span class="s0">Sequential</span><span class="s2">([</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Input</span><span class="s2">(</span><span class="s0">shape</span><span class="s2">=(</span><span class="s0">IMAGE_SIZE</span><span class="s2">, </span><span class="s0">IMAGE_SIZE</span><span class="s2">, </span><span class="s0">CHANNELS</span><span class="s2">)),</span>
+
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">32</span><span class="s2">, </span><span class="s0">kernel_size </span><span class="s2">= (</span><span class="s3">3</span><span class="s2">,</span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">64</span><span class="s2">,  </span><span class="s0">kernel_size </span><span class="s2">= (</span><span class="s3">3</span><span class="s2">,</span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">64</span><span class="s2">,  </span><span class="s0">kernel_size </span><span class="s2">= (</span><span class="s3">3</span><span class="s2">,</span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">64</span><span class="s2">, (</span><span class="s3">3</span><span class="s2">, </span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">64</span><span class="s2">, (</span><span class="s3">3</span><span class="s2">, </span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Conv2D</span><span class="s2">(</span><span class="s3">64</span><span class="s2">, (</span><span class="s3">3</span><span class="s2">, </span><span class="s3">3</span><span class="s2">), </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">MaxPooling2D</span><span class="s2">((</span><span class="s3">2</span><span class="s2">, </span><span class="s3">2</span><span class="s2">)),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Flatten</span><span class="s2">(),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Dense</span><span class="s2">(</span><span class="s3">64</span><span class="s2">, </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'relu'</span><span class="s2">),</span>
+    <span class="s0">layers</span><span class="s2">.</span><span class="s0">Dense</span><span class="s2">(</span><span class="s0">n_classes</span><span class="s2">, </span><span class="s0">activation</span><span class="s2">=</span><span class="s4">'softmax'</span><span class="s2">),</span>
+<span class="s2">])</span>
+
+<span class="s0">model</span><span class="s2">.</span><span class="s0">summary</span><span class="s2">()</span>
+<hr class="ls0"><span class="s0">#%% md 
+Compiling the Model 
+ <hr class="ls0">#%% 
+model</span><span class="s2">.</span><span class="s0">compile</span><span class="s2">(</span>
+    <span class="s0">optimizer</span><span class="s2">=</span><span class="s4">'adam'</span><span class="s2">,</span>
+    <span class="s0">loss</span><span class="s2">=</span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">losses</span><span class="s2">.</span><span class="s0">SparseCategoricalCrossentropy</span><span class="s2">(</span><span class="s0">from_logits</span><span class="s2">=</span><span class="s1">False</span><span class="s2">),</span>
+    <span class="s0">metrics</span><span class="s2">=[</span><span class="s4">'accuracy'</span><span class="s2">]</span>
+<span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s3">3</span>
+<span class="s0">history </span><span class="s2">= </span><span class="s0">model</span><span class="s2">.</span><span class="s0">fit</span><span class="s2">(</span>
+    <span class="s0">train_ds</span><span class="s2">,</span>
+    <span class="s0">batch_size</span><span class="s2">=</span><span class="s0">BATCH_SIZE</span><span class="s2">,</span>
+    <span class="s0">validation_data</span><span class="s2">=</span><span class="s0">val_ds</span><span class="s2">,</span>
+    <span class="s0">verbose</span><span class="s2">=</span><span class="s3">1</span><span class="s2">,</span>
+    <span class="s0">epochs</span><span class="s2">=</span><span class="s0">EPOCHS</span><span class="s2">,</span>
+<span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+scores </span><span class="s2">= </span><span class="s0">model</span><span class="s2">.</span><span class="s0">evaluate</span><span class="s2">(</span><span class="s0">test_ds</span><span class="s2">)</span>
+<hr class="ls0"><span class="s0">#%% 
+scores</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">def </span><span class="s0">generate_report</span><span class="s2">(</span><span class="s0">model</span><span class="s2">, </span><span class="s0">test_ds</span><span class="s2">, </span><span class="s0">class_names</span><span class="s2">):</span>
+    <span class="s0">y_true </span><span class="s2">= []</span>
+    <span class="s0">y_pred_probs </span><span class="s2">= []</span>
+    <span class="s1">for </span><span class="s0">images</span><span class="s2">, </span><span class="s0">labels </span><span class="s1">in </span><span class="s0">test_ds</span><span class="s2">:</span>
+        <span class="s0">y_true</span><span class="s2">.</span><span class="s0">extend</span><span class="s2">(</span><span class="s0">labels</span><span class="s2">.</span><span class="s0">numpy</span><span class="s2">())  </span><span class="s5"># Corrected line</span>
+        <span class="s0">y_pred_probs</span><span class="s2">.</span><span class="s0">extend</span><span class="s2">(</span><span class="s0">model</span><span class="s2">.</span><span class="s0">predict</span><span class="s2">(</span><span class="s0">images</span><span class="s2">, </span><span class="s0">verbose</span><span class="s2">=</span><span class="s3">0</span><span class="s2">))</span>
+    <span class="s0">y_pred_classes </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">argmax</span><span class="s2">(</span><span class="s0">y_pred_probs</span><span class="s2">, </span><span class="s0">axis</span><span class="s2">=</span><span class="s3">1</span><span class="s2">)</span>
+    <span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;--- Classification Report ---&quot;</span><span class="s2">)</span>
+    <span class="s0">print</span><span class="s2">(</span><span class="s0">classification_report</span><span class="s2">(</span><span class="s0">y_true</span><span class="s2">, </span><span class="s0">y_pred_classes</span><span class="s2">, </span><span class="s0">target_names</span><span class="s2">=</span><span class="s0">class_names</span><span class="s2">))</span>
+    <span class="s5"># Plot the confusion matrix</span>
+    <span class="s0">cm </span><span class="s2">= </span><span class="s0">confusion_matrix</span><span class="s2">(</span><span class="s0">y_true</span><span class="s2">, </span><span class="s0">y_pred_classes</span><span class="s2">)</span>
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s3">10</span><span class="s2">, </span><span class="s3">8</span><span class="s2">))</span>
+    <span class="s0">sns</span><span class="s2">.</span><span class="s0">heatmap</span><span class="s2">(</span><span class="s0">cm</span><span class="s2">, </span><span class="s0">annot</span><span class="s2">=</span><span class="s1">True</span><span class="s2">, </span><span class="s0">fmt</span><span class="s2">=</span><span class="s4">'d'</span><span class="s2">, </span><span class="s0">cmap</span><span class="s2">=</span><span class="s4">'Blues'</span><span class="s2">, </span><span class="s0">xticklabels</span><span class="s2">=</span><span class="s0">class_names</span><span class="s2">, </span><span class="s0">yticklabels</span><span class="s2">=</span><span class="s0">class_names</span><span class="s2">),</span>
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">xlabel</span><span class="s2">(</span><span class="s4">'Predicted'</span><span class="s2">)</span>
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">ylabel</span><span class="s2">(</span><span class="s4">'Actual'</span><span class="s2">)</span>
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">'Confusion Matrix'</span><span class="s2">)</span>
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">show</span><span class="s2">()</span><hr class="ls0"><span class="s0">#%% md 
+</span><hr class="ls0"><span class="s0">#%% 
+generate_report</span><span class="s2">(</span><span class="s0">model</span><span class="s2">,</span><span class="s0">test_ds</span><span class="s2">,</span><span class="s0">class_names</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">for </span><span class="s0">images_batch</span><span class="s2">, </span><span class="s0">labels_batch </span><span class="s1">in </span><span class="s0">test_ds</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+
+    <span class="s0">first_image </span><span class="s2">= </span><span class="s0">images_batch</span><span class="s2">[</span><span class="s3">0</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">().</span><span class="s0">astype</span><span class="s2">(</span><span class="s4">'uint8'</span><span class="s2">)</span>
+    <span class="s0">first_label </span><span class="s2">= </span><span class="s0">labels_batch</span><span class="s2">[</span><span class="s3">0</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">()</span>
+
+    <span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">first_image</span><span class="s2">)</span>
+    <span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;actual label:&quot;</span><span class="s2">,</span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">first_label</span><span class="s2">])</span>
+
+    <span class="s0">batch_prediction </span><span class="s2">= </span><span class="s0">model</span><span class="s2">.</span><span class="s0">predict</span><span class="s2">(</span><span class="s0">images_batch</span><span class="s2">)</span>
+    <span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;predicted label:&quot;</span><span class="s2">,</span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">np</span><span class="s2">.</span><span class="s0">argmax</span><span class="s2">(</span><span class="s0">batch_prediction</span><span class="s2">[</span><span class="s3">0</span><span class="s2">])])</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">def </span><span class="s0">predict</span><span class="s2">(</span><span class="s0">model</span><span class="s2">,</span><span class="s0">img</span><span class="s2">):</span>
+    <span class="s0">img_array </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">preprocessing</span><span class="s2">.</span><span class="s0">image</span><span class="s2">.</span><span class="s0">img_to_array</span><span class="s2">(</span><span class="s0">images</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">())</span>
+    <span class="s0">img_array </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">expand_dims</span><span class="s2">(</span><span class="s0">img_array</span><span class="s2">, </span><span class="s3">0</span><span class="s2">)</span>
+
+    <span class="s0">predictions </span><span class="s2">= </span><span class="s0">model</span><span class="s2">.</span><span class="s0">predict</span><span class="s2">(</span><span class="s0">img_array</span><span class="s2">)</span>
+
+    <span class="s0">predicted_class </span><span class="s2">= </span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">np</span><span class="s2">.</span><span class="s0">argmax</span><span class="s2">(</span><span class="s0">predictions</span><span class="s2">[</span><span class="s3">0</span><span class="s2">])]</span>
+    <span class="s0">confidence </span><span class="s2">= </span><span class="s0">round</span><span class="s2">(</span><span class="s3">100 </span><span class="s2">* (</span><span class="s0">np</span><span class="s2">.</span><span class="s0">max</span><span class="s2">(</span><span class="s0">predictions</span><span class="s2">[</span><span class="s3">0</span><span class="s2">])), </span><span class="s3">2</span><span class="s2">)</span>
+    <span class="s1">return </span><span class="s0">predicted_class</span><span class="s2">, </span><span class="s0">confidence</span><hr class="ls0"><span class="s0">#%% 
+</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">figure</span><span class="s2">(</span><span class="s0">figsize</span><span class="s2">=(</span><span class="s3">20</span><span class="s2">, </span><span class="s3">20</span><span class="s2">))</span>
+<span class="s1">for </span><span class="s0">images</span><span class="s2">, </span><span class="s0">labels </span><span class="s1">in </span><span class="s0">test_ds</span><span class="s2">.</span><span class="s0">take</span><span class="s2">(</span><span class="s3">1</span><span class="s2">):</span>
+    <span class="s1">for </span><span class="s0">i </span><span class="s1">in </span><span class="s0">range</span><span class="s2">(</span><span class="s3">9</span><span class="s2">):</span>
+        <span class="s0">ax </span><span class="s2">= </span><span class="s0">plt</span><span class="s2">.</span><span class="s0">subplot</span><span class="s2">(</span><span class="s3">3</span><span class="s2">, </span><span class="s3">3</span><span class="s2">, </span><span class="s0">i </span><span class="s2">+ </span><span class="s3">1</span><span class="s2">)</span>
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">images</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">().</span><span class="s0">astype</span><span class="s2">(</span><span class="s4">&quot;uint8&quot;</span><span class="s2">))</span>
+
+        <span class="s0">predicted_class</span><span class="s2">, </span><span class="s0">confidence </span><span class="s2">= </span><span class="s0">predict</span><span class="s2">(</span><span class="s0">model</span><span class="s2">, </span><span class="s0">images</span><span class="s2">[</span><span class="s0">i</span><span class="s2">].</span><span class="s0">numpy</span><span class="s2">())</span>
+        <span class="s0">actual_class </span><span class="s2">= </span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">labels</span><span class="s2">[</span><span class="s0">i</span><span class="s2">]]</span>
+
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">title</span><span class="s2">(</span><span class="s4">f&quot;Actual: </span><span class="s1">{</span><span class="s0">actual_class</span><span class="s1">}</span><span class="s4">,/n Predicted: </span><span class="s1">{</span><span class="s0">predicted_class</span><span class="s1">}</span><span class="s4">.</span><span class="s1">\n </span><span class="s4">Confidence: </span><span class="s1">{</span><span class="s0">confidence</span><span class="s1">}</span><span class="s4">%&quot;</span><span class="s2">)</span>
+
+        <span class="s0">plt</span><span class="s2">.</span><span class="s0">axis</span><span class="s2">(</span><span class="s4">&quot;off&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+model</span><span class="s2">.</span><span class="s0">save</span><span class="s2">(</span><span class="s4">'potato_disease_model.keras'</span><span class="s2">)</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s4">&quot;Model saved successfully!&quot;</span><span class="s2">)</span><hr class="ls0"><span class="s0">#%% 
+loaded_model </span><span class="s2">= </span><span class="s0">tf</span><span class="s2">.</span><span class="s0">keras</span><span class="s2">.</span><span class="s0">models</span><span class="s2">.</span><span class="s0">load_model</span><span class="s2">(</span><span class="s4">'potato_disease_model.keras'</span><span class="s2">)</span>
+<span class="s0">loaded_model</span><span class="s2">.</span><span class="s0">summary</span><span class="s2">()</span>
+<hr class="ls0"><span class="s0">#%% 
+img_path </span><span class="s2">= </span><span class="s4">&quot;C:/Users/Ritesh/OneDrive/Desktop/Screenshot 2025-08-31 002509.png&quot;</span>
+<span class="s1">def </span><span class="s0">predict_image</span><span class="s2">(</span><span class="s0">model</span><span class="s2">, </span><span class="s0">path</span><span class="s2">):</span>
+
+    <span class="s0">img </span><span class="s2">= </span><span class="s0">image</span><span class="s2">.</span><span class="s0">load_img</span><span class="s2">(</span><span class="s0">path</span><span class="s2">, </span><span class="s0">target_size</span><span class="s2">=(</span><span class="s0">IMAGE_SIZE</span><span class="s2">, </span><span class="s0">IMAGE_SIZE</span><span class="s2">))</span>
+
+    <span class="s0">img_array </span><span class="s2">= </span><span class="s0">image</span><span class="s2">.</span><span class="s0">img_to_array</span><span class="s2">(</span><span class="s0">img</span><span class="s2">)</span>
+
+    <span class="s0">img_batch </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">expand_dims</span><span class="s2">(</span><span class="s0">img_array</span><span class="s2">, </span><span class="s0">axis</span><span class="s2">=</span><span class="s3">0</span><span class="s2">)</span>
+
+    <span class="s0">prediction </span><span class="s2">= </span><span class="s0">model</span><span class="s2">.</span><span class="s0">predict</span><span class="s2">(</span><span class="s0">img_batch</span><span class="s2">)</span>
+
+    <span class="s1">return </span><span class="s0">prediction</span>
+
+<span class="s0">predictions </span><span class="s2">= </span><span class="s0">predict_image</span><span class="s2">(</span><span class="s0">loaded_model</span><span class="s2">, </span><span class="s0">img_path</span><span class="s2">)</span>
+
+
+<span class="s0">predicted_class_index </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">argmax</span><span class="s2">(</span><span class="s0">predictions</span><span class="s2">[</span><span class="s3">0</span><span class="s2">])</span>
+
+<span class="s0">predicted_class_name </span><span class="s2">= </span><span class="s0">class_names</span><span class="s2">[</span><span class="s0">predicted_class_index</span><span class="s2">]</span>
+
+
+<span class="s0">confidence </span><span class="s2">= </span><span class="s0">np</span><span class="s2">.</span><span class="s0">max</span><span class="s2">(</span><span class="s0">predictions</span><span class="s2">[</span><span class="s3">0</span><span class="s2">]) * </span><span class="s3">100</span>
+
+<span class="s0">img </span><span class="s2">= </span><span class="s0">Image</span><span class="s2">.</span><span class="s0">open</span><span class="s2">(</span><span class="s0">img_path</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">imshow</span><span class="s2">(</span><span class="s0">img</span><span class="s2">)</span>
+<span class="s0">plt</span><span class="s2">.</span><span class="s0">axis</span><span class="s2">(</span><span class="s4">&quot;off&quot;</span><span class="s2">)</span>
+
+<span class="s0">print</span><span class="s2">(</span><span class="s4">f&quot;Prediction: '</span><span class="s1">{</span><span class="s0">predicted_class_name</span><span class="s1">}</span><span class="s4">' with </span><span class="s1">{</span><span class="s0">confidence</span><span class="s1">:</span><span class="s4">.2f</span><span class="s1">}</span><span class="s4">% confidence.&quot;</span><span class="s2">)</span></pre>
+</body>
+</html>

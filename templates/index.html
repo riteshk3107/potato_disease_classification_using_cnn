@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potato Disease Classification using cnn</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-seedling"></i>
+                    <h1>Potato Disease Classification using cnn</h1>
+                </div>            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h3>Upload Potato Leaf Image</h3>
+                            <p>Drag and drop your image here or click to browse</p>
+                            <input type="file" id="fileInput" accept="image/*" hidden>
+                            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                                Choose File
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="image-preview" id="imagePreview" style="display: none;">
+                        <img id="previewImg" src="" alt="Preview">
+                        <button class="remove-btn" onclick="removeImage()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-section">
+                    <button class="predict-btn" id="predictBtn" onclick="predictDisease()" disabled>
+                        <i class="fas fa-search"></i>
+                        Analyze Disease
+                    </button>
+                </div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-card">
+                    <h2>Analysis Results</h2>
+                    
+                    <!-- Image and Prediction Display (Notebook Style) -->
+                    <div class="notebook-style-result">
+                        <div class="image-display">
+                            <img id="resultImage" src="" alt="Analyzed Image">
+                            <div class="image-overlay">
+                                <div class="prediction-badge" id="predictionBadge">
+                                    <span id="predictedDiseaseBadge">-</span>
+                                    <span id="confidenceBadge">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="prediction-summary">
+                            <div class="summary-text">
+                                <span class="prediction-label">Prediction:</span>
+                                <span class="prediction-value" id="predictedDisease">-</span>
+                                <span class="confidence-label">with</span>
+                                <span class="confidence-value" id="confidenceText">-</span>
+                                <span class="confidence-label">confidence.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+
+        </main>
+
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Analyzing image...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
