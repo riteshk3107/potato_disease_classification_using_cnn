@@ -238,3 +238,4 @@ If you encounter any issues or have questions:
 4. Verify the model file is present and accessible
 
 For additional help, please open an issue in the project repository.
+# potato_disease_classification_using_cnn
